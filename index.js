@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
+import session from 'express-session';
 
 const porta = 3000;
 const host = '0.0.0.0';
@@ -153,21 +154,26 @@ function processaCadastroUsuario(req, res) {
 
 const app = express();
 
+app.use(cookieParser());
+
+app.use(session({secret: "MyK4yD0ntRo8", resave: false, saveUninitialized: true, cookie: {maxAge: 1000* 60 * 15}}));
+
 app.use(express.urlencoded({extended: true}));
 
 app.use(express.static(path.join(process.cwd(), './Pags')));
 
 app.get('/', (req, res) => {
 
+    const DataUltimoAcesso = req.cookies.DataUltimoAcesso;
     const data = new Date();
-    res.cookie("DataUltimoAcesso", data.toLocaleString() + " " + data.toLocaleTimeString());
+    res.cookie("DataUltimoAcesso", data.toLocaleString(), {maxAge: 1000* 60 * 60 * 24 * 30, httpOnly: true});
     res.end(`
     <!DOCTYPE html>
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="icon" type="image/x-icon" href="favicon.ico">
-        <link rel="stylesheet" type="text/css" href="style.css">
+        <link rel="stylesheet" type="text/css" href="styleMenu.css">
         <title>Menu do Sistema</title>
     </head>
     <body>
@@ -176,6 +182,9 @@ app.get('/', (req, res) => {
             <li><a href="/cadastro.html">Cadastro</a></li>
         </ul>
     </body>
+    <footer>
+        <p id="Last">Seu último acesso foi em ${DataUltimoAcesso}</p>
+    </footer>
     </html>
     `)
 });
