@@ -192,7 +192,7 @@ app.get('/', autentic, (req, res) => {
         </ul>
     </body>
     <footer>
-        <p id="Last">Seu último acesso foi em ${DataUltimoAcesso}</p>
+        <p>Seu último acesso foi em | ${DataUltimoAcesso} |</p>
     </footer>
     </html>
     `)
@@ -202,7 +202,7 @@ app.post('/login', (req, res) => {
     const usuari = req.body.usuName; 
     const senha = req.body.pass;
 
-    if (usuari && senha && (usuari === 'Guxta') && (senha === '04052005')){
+    if (usuari && senha && (usuari === 'admin') && (senha === 'admin')){
         req.session.usuAutentic = true;
         res.redirect('/');
     }
