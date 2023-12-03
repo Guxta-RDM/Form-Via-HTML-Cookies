@@ -152,6 +152,15 @@ function processaCadastroUsuario(req, res) {
     
 }
 
+function autentic (req, res, next){
+    if (req.session.usuAutentic){
+        next();
+    }
+    else{
+        res.redirect("/login.html");
+    }
+}
+
 const app = express();
 
 app.use(cookieParser());
@@ -162,7 +171,7 @@ app.use(express.urlencoded({extended: true}));
 
 app.use(express.static(path.join(process.cwd(), './Pags')));
 
-app.get('/', (req, res) => {
+app.get('/', autentic, (req, res) => {
 
     const DataUltimoAcesso = req.cookies.DataUltimoAcesso;
     const data = new Date();
@@ -189,7 +198,35 @@ app.get('/', (req, res) => {
     `)
 });
 
-app.post('/cadastro', processaCadastroUsuario);
+app.post('/login', (req, res) => {
+    const usuari = req.body.usuName; 
+    const senha = req.body.pass;
+
+    if (usuari && senha && (usuari === 'Guxta') && (senha === '04052005')){
+        req.session.usuAutentic = true;
+        res.redirect('/');
+    }
+    else{
+        res.end(`
+        <!DOCTYPE html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="icon" type="image/x-icon" href="favicon.ico">
+            <link rel="stylesheet" type="text/css" href="styleMenu.css">
+            <title>FALHA NA AUTENTIFICAÇÃO</title>
+        </head>
+        <body>
+            <h1>Nome de usuário ou senha inválidos</h1>
+            <a href="/login.html">Voltar ao Login</a>
+        </body>
+        </html>
+        `)
+    }
+
+});
+
+app.post('/cadastro', autentic, processaCadastroUsuario);
 
 app.listen(porta, host, () => {
     console.log(`Servidor rodando na url http://${host}:${porta}`);
